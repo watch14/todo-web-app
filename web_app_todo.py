@@ -25,20 +25,37 @@ def save_todos_to_excel():
     with pd.ExcelWriter(todosExcelFile, mode='w', engine='openpyxl') as writer:
         df_todos.to_excel(writer, sheet_name='To-Do Tasks', index=False)
 
-# Function to save archived tasks to Excel
-def save_archived_to_excel():
-    df_archive = pd.DataFrame(todos, columns=["Archived Tasks"])
+# Function to save a task to the archive
+def save_task_to_archive(task):
     today_str = datetime.date.today().strftime('%Y-%m-%d')
 
-    with pd.ExcelWriter(archiveExcelFile, mode='a', engine='openpyxl', if_sheet_exists='overlay') as writer:
+    if os.path.exists(archiveExcelFile):
+        with pd.ExcelFile(archiveExcelFile) as xls:
+            if today_str in xls.sheet_names:
+                # Load existing archive data
+                df_archive = pd.read_excel(xls, sheet_name=today_str)
+                new_task_df = pd.DataFrame([task], columns=["Archived Tasks"])
+                df_archive = pd.concat([df_archive, new_task_df], ignore_index=True)
+            else:
+                # Create new archive data
+                df_archive = pd.DataFrame([task], columns=["Archived Tasks"])
+    else:
+        # Create new archive file
+        df_archive = pd.DataFrame([task], columns=["Archived Tasks"])
+
+    # Save updated archive data
+    with pd.ExcelWriter(archiveExcelFile, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
         df_archive.to_excel(writer, sheet_name=today_str, index=False)
 
 # Function to handle checkbox changes
 def handle_checkbox_change(item, index):
     if st.session_state.get(f"{item}_{index}", False):
+        # Save the checked task to the archive
+        save_task_to_archive(item)
+        # Remove the checked task from the to-do list
         todos.remove(item)
+        # Save updated to-do list to Excel
         save_todos_to_excel()
-        save_archived_to_excel()
 
 # Function to add a new task
 def addTodo():
@@ -57,8 +74,8 @@ st.write("""
 # Input for adding new tasks
 st.text_input(label="Add Task:", placeholder="Add Task:", key="newTodo", on_change=addTodo)
 
-# Display tasks to be archived
-st.write("Tasks to be archived:")
+# Display tasks to be done
+st.write("Tasks to be done:")
 
 # List the current tasks with checkboxes
 for i, item in enumerate(todos):
@@ -68,17 +85,26 @@ for i, item in enumerate(todos):
 st.markdown("---")
 
 # Calculate counts
-total_count = len(todos)
+total_count = len(todos)  # Total tasks is just the length of todos
+completed_count = len([item for item in todos if st.session_state.get(f"{item}_{i}", False)])  # Adjust as needed
+completion_percentage = (completed_count / total_count) if total_count > 0 else 0
 
 # Display progress bar
-st.write(f"## Task Archive Progress: {total_count}/{total_count} tasks available to be archived")
-st.progress(1.0)  # Always 100% since all tasks are in the list
+st.write(f"## Task Completion Progress: {completed_count}/{total_count} tasks completed")
+st.progress(completion_percentage)
 
 # Motivational message
-if total_count > 0:
-    st.write("### Keep going! You have tasks ready to be archived. Stay focused and complete your tasks!")
+if completed_count > 0:
+    if completion_percentage > 0.75:
+        st.write("### Fantastic job! You've completed a significant portion of your tasks. You're doing great!")
+    elif completion_percentage > 0.50:
+        st.write("### Well done! You've completed more than half of your tasks. Keep pushing forward!")
+    elif completion_percentage > 0.25:
+        st.write("### Good work! You've made solid progress. Keep working to reach your goal!")
+    else:
+        st.write("### Keep going! You've made a good start. Stay focused and continue making progress!")
 else:
-    st.write("### Great job! All tasks are archived. Add new tasks to get started!")
+    st.write("### Get started! Add some tasks and start working towards your goals!")
 
 # Show archived tasks using a slider
 st.markdown("---")
