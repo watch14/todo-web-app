@@ -75,16 +75,22 @@ def get_today_archived_tasks():
     return pd.DataFrame(columns=["Archived Tasks"])
 
 # App header
-st.write("""
-         # My Daily To-Do App
-         ###### Improve your productivity each day!
-         """)
+st.set_page_config(page_title="Daily To-Do App", page_icon=":memo:")
+
+st.title("📝 My Daily To-Do App")
+st.write("### Improve your productivity each day!")
 
 # Input for adding new tasks
-st.text_input(label="Add Task:", placeholder="Add Task:", key="newTodo", on_change=addTodo)
+st.text_input(
+    label="Add a New Task:",
+    placeholder="Enter a task...",
+    key="newTodo",
+    on_change=addTodo,
+    help="Type a task and press Enter to add it to your list."
+)
 
 # Display tasks to be done
-st.write("Tasks to be done:")
+st.write("### Tasks to Be Done")
 
 # List the current tasks with checkboxes
 for i, item in enumerate(todos):
@@ -93,7 +99,7 @@ for i, item in enumerate(todos):
 # Separator
 st.markdown("---")
 
-# Calculate counts
+# Calculate progress
 total_tasks = len(todos) + len(get_today_archived_tasks())
 completed_tasks_today = len(get_today_archived_tasks())
 completion_percentage = (completed_tasks_today / total_tasks) if total_tasks > 0 else 0
@@ -104,7 +110,7 @@ st.progress(completion_percentage)
 
 # Show archived tasks using an expander
 st.markdown("---")
-with st.expander("View Archived Tasks", expanded=False):
+with st.expander("📂 View Archived Tasks", expanded=False):
     def load_archive_dates():
         if os.path.exists(archiveExcelFile):
             with pd.ExcelFile(archiveExcelFile) as xls:
