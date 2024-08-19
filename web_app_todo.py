@@ -75,7 +75,7 @@ def get_today_archived_tasks():
     return pd.DataFrame(columns=["Archived Tasks"])
 
 # App header
-st.set_page_config(page_title="Daily To-Do App", page_icon=":memo:", layout="wide")
+st.set_page_config(page_title="Daily To-Do App", page_icon=":memo:")
 
 st.title("📝 My Daily To-Do App")
 st.write("### Improve your productivity each day!")
