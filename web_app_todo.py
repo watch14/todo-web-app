@@ -75,7 +75,7 @@ def get_today_archived_tasks():
     return pd.DataFrame(columns=["Archived Tasks"])
 
 # App header
-st.set_page_config(page_title="Daily To-Do App", page_icon=":memo:")
+st.set_page_config(page_title="Daily To-Do App", page_icon=":memo:", layout="wide")
 
 st.title("📝 My Daily To-Do App")
 st.write("### Improve your productivity each day!")
@@ -108,6 +108,19 @@ completion_percentage = (completed_tasks_today / total_tasks) if total_tasks > 0
 st.write(f"## Task Completion Progress: {completed_tasks_today}/{total_tasks} tasks completed")
 st.progress(completion_percentage)
 
+# Motivational message
+if completed_tasks_today > 0:
+    if completion_percentage > 0.75:
+        st.write("### Fantastic job! You've completed a significant portion of today's tasks. You're doing great!")
+    elif completion_percentage > 0.50:
+        st.write("### Well done! You've completed more than half of today's tasks. Keep pushing forward!")
+    elif completion_percentage > 0.25:
+        st.write("### Good work! You've made solid progress today. Keep working to reach your goal!")
+    else:
+        st.write("### Keep going! You've made a good start today. Stay focused and continue making progress!")
+else:
+    st.write("### Get started! Add some tasks and start working towards your goals!")
+
 # Show archived tasks using an expander
 st.markdown("---")
 with st.expander("📂 View Archived Tasks", expanded=False):
@@ -136,8 +149,8 @@ with st.expander("📂 View Archived Tasks", expanded=False):
         
         if not df_archive.empty:
             st.write(f"Archived Tasks for {selected_date_str}:")
-            for task in df_archive['Archived Tasks']:
-                st.checkbox(task, value=True, key=f"archive_{task}", disabled=True)
+            for i, task in enumerate(df_archive['Archived Tasks']):
+                st.checkbox(task, value=True, key=f"archive_{selected_date_str}_{i}", disabled=True)
         else:
             st.write(f"No archived tasks found for {selected_date_str}.")
     else:
