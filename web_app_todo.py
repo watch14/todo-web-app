@@ -102,19 +102,6 @@ completion_percentage = (completed_tasks_today / total_tasks) if total_tasks > 0
 st.write(f"## Task Completion Progress: {completed_tasks_today}/{total_tasks} tasks completed")
 st.progress(completion_percentage)
 
-# Motivational message
-if completed_tasks_today > 0:
-    if completion_percentage > 0.75:
-        st.write("### Fantastic job! You've completed a significant portion of today's tasks. You're doing great!")
-    elif completion_percentage > 0.50:
-        st.write("### Well done! You've completed more than half of today's tasks. Keep pushing forward!")
-    elif completion_percentage > 0.25:
-        st.write("### Good work! You've made solid progress today. Keep working to reach your goal!")
-    else:
-        st.write("### Keep going! You've made a good start today. Stay focused and continue making progress!")
-else:
-    st.write("### Get started! Add some tasks and start working towards your goals!")
-
 # Show archived tasks using an expander
 st.markdown("---")
 with st.expander("View Archived Tasks", expanded=False):
